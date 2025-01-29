@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 
 let dbClient: MongoClient;
 const URI = 'mongodb://localhost:27017';
@@ -8,8 +8,6 @@ const collectionName = 'todos';
 function initializeDB() {
   dbClient = new MongoClient(URI);
 }
-
-
 
 async function getTodosCollection() {
   if (!dbClient) {
@@ -43,7 +41,23 @@ const addTodo = async (todo) => {
   }
 };
 
+const deleteTodo = async (id: string) => {
+  try {
+    const collection = await getTodosCollection();
+    const result = await collection.deleteOne({_id: new ObjectId(id)})
+    if (result.deletedCount === 0) {
+      throw new Error(`Todo with id ${id} not found`);
+    }
+    return
+  } catch (error) {
+    throw new Error(error);
+  } finally {
+    dbClient.close()
+  }
+}
+
 export {
   getTodos, 
-  addTodo
+  addTodo, 
+  deleteTodo
 }
