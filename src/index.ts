@@ -1,6 +1,7 @@
-const express = require('express');
-const { getTodos, addTodo } = require('./mongoService');
-const cors = require('cors');
+import express from 'express';
+import { getTodos, addTodo } from './mongoService';
+import cors from 'cors';
+
 const app = express();
 const port = 3000;
 

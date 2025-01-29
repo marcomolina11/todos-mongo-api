@@ -1,22 +1,26 @@
-const { MongoClient } = require('mongodb');
+import { MongoClient } from 'mongodb';
 
-let dbClient;
+let dbClient: MongoClient;
 const URI = 'mongodb://localhost:27017';
+const dbName = 'todosDB';
+const collectionName = 'todos';
 
 function initializeDB() {
   dbClient = new MongoClient(URI);
 }
+
+
 
 async function getTodosCollection() {
   if (!dbClient) {
     initializeDB();
   }
   await dbClient.connect();
-  const database = dbClient.db('todosDB');
-  return database.collection('todos');
+  const database = dbClient.db(dbName);
+  return database.collection(collectionName);
 }
 
-module.exports.getTodos = async () => {
+const getTodos = async () => {
   try {
     const collection = await getTodosCollection();
     return await collection.find({}).toArray();
@@ -27,7 +31,7 @@ module.exports.getTodos = async () => {
   }
 };
 
-module.exports.addTodo = async (todo) => {
+const addTodo = async (todo) => {
   try {
     const collection = await getTodosCollection();
     const result = await collection.insertOne(todo);
@@ -38,3 +42,8 @@ module.exports.addTodo = async (todo) => {
     dbClient.close();
   }
 };
+
+export {
+  getTodos, 
+  addTodo
+}
