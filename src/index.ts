@@ -31,12 +31,16 @@ app.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     await deleteTodo(id);
-    res.status(200).json({ message: `Todo with id ${id} deleted successfully` });
+    res
+      .status(200)
+      .json({ message: `Todo with id ${id} deleted successfully` });
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: error.message });
   }
-})
+});
 
 app.listen(port, () => {
   console.log(`Todo api listening on port ${port}`);
 });
+
+export default app;
