@@ -1,54 +1,13 @@
 import express from 'express';
-import { getTodos, addTodo, deleteTodo, patchTodo } from './mongoService';
 import cors from 'cors';
+import todoRouter from './todoRoutes';
 
 const app = express();
 const port = 3000;
 
 app.use(cors());
 app.use(express.json());
-
-app.get('/', async (req, res) => {
-  try {
-    const todos = await getTodos();
-    res.status(200).json(todos);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.post('/', async (req, res) => {
-  try {
-    const todo = req.body;
-    const _id = await addTodo(todo);
-    res.status(200).json({ ...todo, _id });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.delete('/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    await deleteTodo(id);
-    res
-      .status(200)
-      .json({ message: `Todo with id ${id} deleted successfully` });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.patch('/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const updatedTodo = req.body;
-    const results = await patchTodo(id, updatedTodo);
-    res.status(200).json(results);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+app.use('/todo', todoRouter);
 
 app.listen(port, () => {
   console.log(`Todo api listening on port ${port}`);
