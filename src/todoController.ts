@@ -1,4 +1,4 @@
-import { addTodo, deleteTodo, getTodos } from './mongoService'
+import { addTodo, deleteTodo, getTodos, patchTodo } from './mongoService'
 
 const todoController = {
   getTodos: async (req, res) => {
