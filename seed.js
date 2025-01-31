@@ -4,15 +4,15 @@ const dbName = 'todosDB';
 const collectionName = 'todos';
 
 const seedData = [
-    { title: 'Buy groceries'},
-    { title: 'Walk the dog' },
-    { title: 'Do laundry' },
-  ];
-  
-async function seedDB() {
-const client = new MongoClient(URI);
+  { title: 'Buy groceries', isCompleted: false },
+  { title: 'Walk the dog', isCompleted: false },
+  { title: 'Do laundry', isCompleted: false },
+];
 
-try {
+async function seedDB() {
+  const client = new MongoClient(URI);
+
+  try {
     await client.connect();
     console.log('Connected to MongoDB');
 
@@ -24,12 +24,12 @@ try {
 
     await collection.insertMany(seedData);
     console.log('Inserted seed data');
-} catch (error) {
+  } catch (error) {
     console.error('Error seeding database:', error);
-} finally {
+  } finally {
     await client.close();
     console.log('Closed connection to MongoDB');
-}
+  }
 }
 
 seedDB();
