@@ -1,5 +1,5 @@
 import express from 'express';
-import { getTodos, addTodo, deleteTodo } from './mongoService';
+import { getTodos, addTodo, deleteTodo, patchTodo } from './mongoService';
 import cors from 'cors';
 
 const app = express();
@@ -34,6 +34,17 @@ app.delete('/:id', async (req, res) => {
     res
       .status(200)
       .json({ message: `Todo with id ${id} deleted successfully` });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.patch('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedTodo = req.body;
+    const results = await patchTodo(id, updatedTodo);
+    res.status(200).json(results);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

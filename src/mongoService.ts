@@ -44,20 +44,39 @@ const addTodo = async (todo) => {
 const deleteTodo = async (id: string) => {
   try {
     const collection = await getTodosCollection();
-    const result = await collection.deleteOne({_id: new ObjectId(id)})
+    const result = await collection.deleteOne({ _id: new ObjectId(id) });
     if (result.deletedCount === 0) {
       throw new Error(`Todo with id ${id} not found`);
     }
-    return
+    return;
   } catch (error) {
     throw new Error(error);
   } finally {
-    dbClient.close()
+    dbClient.close();
   }
-}
+};
+
+const patchTodo = async (id: string, updatedTodo) => {
+  try {
+    const collection = await getTodosCollection();
+    const result = await collection.findOneAndUpdate(
+      { _id: new ObjectId(id) },
+      { $set: updatedTodo },
+      { returnDocument: 'after' }
+    );
+    return { ...result, _id: result._id.toHexString() };
+  } catch (error) {
+    throw new Error(error);
+  } finally {
+    dbClient.close();
+  }
+};
 
 export {
-  getTodos, 
-  addTodo, 
-  deleteTodo
-}
+  getTodos,
+  addTodo,
+  deleteTodo,
+  patchTodo,
+  getTodosCollection,
+  dbClient,
+};
