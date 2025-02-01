@@ -1,4 +1,4 @@
-import { addTodo, deleteTodo, getTodos, patchTodo } from './mongoService'
+import { addTodo, deleteTodo, getTodos, patchTodo } from "./mongoService";
 
 const todoController = {
   getTodos: async (req, res) => {
@@ -13,7 +13,7 @@ const todoController = {
     try {
       const todo = req.body;
       const _id = await addTodo(todo);
-      res.status(200).json({ ...todo, _id });
+      res.status(201).json({ ...todo, _id });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
@@ -23,13 +23,13 @@ const todoController = {
       const { id } = req.params;
       await deleteTodo(id);
       res
-        .status(200)
+        .status(204)
         .json({ message: `Todo with id ${id} deleted successfully` });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
   },
-  
+
   patchTodo: async (req, res) => {
     try {
       const { id } = req.params;
@@ -39,8 +39,7 @@ const todoController = {
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
-  }
-
-}
+  },
+};
 
 export default todoController;
