@@ -5,7 +5,7 @@ const router = Router()
 
 router.get('/', todoController.getTodos);
 router.post('/', todoController.addTodo);
-router.delete('/:id', todoController.deleteTodo);
 router.patch('/:id', todoController.patchTodo);
+router.delete('/:id', todoController.deleteTodo);
 
 export default router;

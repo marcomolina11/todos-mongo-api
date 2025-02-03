@@ -1,9 +1,9 @@
-import { addTodo, deleteTodo, getTodos, patchTodo } from "./mongoService";
+import { addTodo, deleteTodo, getAllTodos, patchTodo } from "./todoModel";
 
 const todoController = {
   getTodos: async (req, res) => {
     try {
-      const todos = await getTodos();
+      const todos = await getAllTodos();
       res.status(200).json(todos);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -13,17 +13,18 @@ const todoController = {
     try {
       const todo = req.body;
       const _id = await addTodo(todo);
-      res.status(201).json({ ...todo, _id });
+      res.status(200).json({ ...todo, _id });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
   },
+
   deleteTodo: async (req, res) => {
     try {
       const { id } = req.params;
       await deleteTodo(id);
       res
-        .status(204)
+        .status(200)
         .json({ message: `Todo with id ${id} deleted successfully` });
     } catch (error) {
       res.status(500).json({ error: error.message });
