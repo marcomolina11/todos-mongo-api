@@ -1,14 +1,14 @@
 import { MongoClient, ObjectId } from "mongodb";
 import DbAdapter from "./dbAdapter";
 
-const DB_NAME = process.env.DB_NAME;
+const MONGO_URI = process.env.MONGO_URI || "mongodb://database:27017/testDB";
 const COLLECTION_NAME = "todos";
 
 export default class MongoAdapter implements DbAdapter {
   dbClient: MongoClient;
 
   initializeDB() {
-    this.dbClient = new MongoClient(process.env.MONGO_URI);
+    this.dbClient = new MongoClient(MONGO_URI);
   }
 
   async getTodosCollection() {
@@ -16,7 +16,7 @@ export default class MongoAdapter implements DbAdapter {
       this.initializeDB();
     }
     await this.dbClient.connect();
-    const database = this.dbClient.db(DB_NAME);
+    const database = this.dbClient.db();
     return database.collection(COLLECTION_NAME);
   }
 
