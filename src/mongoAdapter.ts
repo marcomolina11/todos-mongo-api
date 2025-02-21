@@ -1,31 +1,31 @@
-import { MongoClient, ObjectId } from 'mongodb';
-import DbAdapter from './dbAdapter';
+import { MongoClient, ObjectId } from "mongodb";
+import DbAdapter from "./dbAdapter";
 
-const DB_NAME = 'todosDB';
-const COLLECTION_NAME = 'todos';
+const DB_NAME = process.env.DB_NAME;
+const COLLECTION_NAME = "todos";
 
 export default class MongoAdapter implements DbAdapter {
   dbClient: MongoClient;
-  
+
   initializeDB() {
     this.dbClient = new MongoClient(process.env.MONGO_URI);
   }
 
   async getTodosCollection() {
     if (!this.dbClient) {
-      this.initializeDB()
+      this.initializeDB();
     }
     await this.dbClient.connect();
     const database = this.dbClient.db(DB_NAME);
     return database.collection(COLLECTION_NAME);
   }
 
-  async getAllTodos(): Promise<[]>{
+  async getAllTodos(): Promise<[]> {
     try {
       const collection = await this.getTodosCollection();
-      return await collection.find({}).toArray() as [];
+      return (await collection.find({}).toArray()) as [];
     } catch (error) {
-      return error;
+      throw new Error(error);
     } finally {
       this.dbClient.close();
     }
@@ -49,7 +49,7 @@ export default class MongoAdapter implements DbAdapter {
       const result = await collection.findOneAndUpdate(
         { _id: ObjectId.createFromHexString(id) },
         { $set: updatedTodo },
-        { returnDocument: 'after' }
+        { returnDocument: "after" }
       );
       return { ...result, _id: result._id.toHexString() };
     } catch (error) {
@@ -62,7 +62,9 @@ export default class MongoAdapter implements DbAdapter {
   async deleteOneTodo(id: string) {
     try {
       const collection = await this.getTodosCollection();
-      const result = await collection.deleteOne({ _id: ObjectId.createFromHexString(id) });
+      const result = await collection.deleteOne({
+        _id: ObjectId.createFromHexString(id),
+      });
       if (result.deletedCount === 0) {
         throw new Error(`Todo with id ${id} not found`);
       }
@@ -74,4 +76,3 @@ export default class MongoAdapter implements DbAdapter {
     }
   }
 }
-
