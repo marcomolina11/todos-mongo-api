@@ -1,17 +1,17 @@
 import todoController from "./todoController";
 
-jest.mock("./mongoService", () => ({
-  getTodos: jest.fn(),
+jest.mock("./todoModel", () => ({
+  getAllTodos: jest.fn(),
   addTodo: jest.fn(),
   deleteTodo: jest.fn(),
   patchTodo: jest.fn(),
 }));
 
-import { getTodos } from "./mongoService";
+import { getAllTodos } from "./todoModel";
 
 describe("Todo Controller", () => {
   it("should get all todos", async () => {
-    (getTodos as jest.Mock).mockResolvedValue(
+    (getAllTodos as jest.Mock).mockResolvedValue(
       Promise.resolve([{ _id: "1", title: "Test Todo" }])
     );
 
@@ -26,7 +26,7 @@ describe("Todo Controller", () => {
   });
 
   it("should handle get all todos error", async () => {
-    (getTodos as jest.Mock).mockRejectedValue(new Error("Error getting todos"));
+    (getAllTodos as jest.Mock).mockRejectedValue(new Error("Error getting todos"));
 
     const spyRequest = {
       status: jest.fn().mockReturnThis(),
