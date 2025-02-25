@@ -1,6 +1,5 @@
 import request from "supertest";
 import app from "./index";
-import todoController from "./todoController";
 
 jest.mock("./todoController", () => ({
   getTodos: jest.fn((req, res) => res.status(200).json([])),

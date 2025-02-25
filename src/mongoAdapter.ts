@@ -1,5 +1,6 @@
 import { MongoClient, ObjectId } from "mongodb";
 import DbAdapter from "./dbAdapter";
+import { Todo } from "./model/Todo";
 
 const MONGO_URI = process.env.MONGO_URI || "mongodb://database:27017/testDB";
 const COLLECTION_NAME = "todos";
@@ -31,7 +32,7 @@ export default class MongoAdapter implements DbAdapter {
     }
   }
 
-  async createOneTodo(todo: {}): Promise<string> {
+  async createOneTodo(todo: Omit<Todo, '_id'>): Promise<string> {
     try {
       const collection = await this.getTodosCollection();
       const result = await collection.insertOne(todo);
@@ -43,7 +44,7 @@ export default class MongoAdapter implements DbAdapter {
     }
   }
 
-  async updateOneTodo(id: string, updatedTodo: {}): Promise<{}> {
+  async updateOneTodo(id: string, updatedTodo: Omit<Todo, '_id'>): Promise<object> {
     try {
       const collection = await this.getTodosCollection();
       const result = await collection.findOneAndUpdate(
