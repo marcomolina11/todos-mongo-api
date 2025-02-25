@@ -14,7 +14,8 @@ jobs:
     steps:
       - name: Notify Frontend Repo
         run: |
-          curl -X POST \
-          -H "Accept: application/vnd.github.everest-preview+json" \
+          curl -L \
+          -X POST \
+          -H "Accept: application/vnd.github+json" \
           https://api.github.com/repos/josbell/todo/dispatches \
           -d '{"event_type": "backend-deployed"}'
