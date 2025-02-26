@@ -7,7 +7,7 @@ on:
   pull_request:
     branches:
       - main
-      
+
 permissions:
   contents: write 
 
@@ -17,11 +17,11 @@ jobs:
     steps:
       - name: Notify Frontend Repo
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TODO_API_PAT: ${{ secrets.TODO_API_PAT }}
         run: |
           curl -L \
           -X POST \
           -H "Accept: application/vnd.github+json" \
-          -H "Authorization: token $GITHUB_TOKEN" \
+          -H "Authorization: token $TODO_API_PAT" \
           https://api.github.com/repos/josbell/todo/dispatches \
           -d '{"event_type": "backend-deployed"}'
