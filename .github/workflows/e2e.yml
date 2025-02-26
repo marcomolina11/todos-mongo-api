@@ -8,14 +8,20 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write 
+
 jobs:
   build-and-notify:
     runs-on: ubuntu-latest
     steps:
       - name: Notify Frontend Repo
+        env:
+          TODO_API_PAT: ${{ secrets.TODO_API_PAT }}
         run: |
           curl -L \
           -X POST \
           -H "Accept: application/vnd.github+json" \
+          -H "Authorization: token $TODO_API_PAT" \
           https://api.github.com/repos/josbell/todo/dispatches \
           -d '{"event_type": "backend-deployed"}'
