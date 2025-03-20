@@ -11,8 +11,9 @@ export default class MongoAdapter implements DbAdapter {
     if (!process.env.MONGO_URI) {
       throw new Error("MONGO_URI is not defined in the environment variables.");
     }
-
-    this.dbClient = new MongoClient(process.env.MONGO_URI);
+    const MONGO_URI =
+      process.env.MONGO_URI || "mongodb://database:27017/testDB";
+    this.dbClient = new MongoClient(MONGO_URI);
   }
 
   async getTodosCollection() {
