@@ -2,7 +2,7 @@ import { MongoClient, ObjectId } from "mongodb";
 import DbAdapter from "./dbAdapter";
 import { Todo } from "./model/Todo";
 
-const MONGO_URI = process.env.MONGO_URI || "mongodb://database:27017/testDB";
+const MONGO_URI = process.env.MONGO_URI;
 const COLLECTION_NAME = "todos";
 
 export default class MongoAdapter implements DbAdapter {
@@ -13,12 +13,19 @@ export default class MongoAdapter implements DbAdapter {
   }
 
   async getTodosCollection() {
+    let database;
     if (!this.dbClient) {
       this.initializeDB();
     }
-    await this.dbClient.connect();
-    const database = this.dbClient.db();
-    return database.collection(COLLECTION_NAME);
+    try {
+      await this.dbClient.connect();
+      database = this.dbClient.db();
+    } catch (error) {
+      console.log(error);
+      throw new Error(error);
+    }
+
+    return database ? database.collection(COLLECTION_NAME) : null;
   }
 
   async getAllTodos(): Promise<[]> {
@@ -26,6 +33,7 @@ export default class MongoAdapter implements DbAdapter {
       const collection = await this.getTodosCollection();
       return (await collection.find({}).toArray()) as [];
     } catch (error) {
+      console.log(error);
       throw new Error(error);
     } finally {
       this.dbClient.close();
