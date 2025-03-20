@@ -2,30 +2,41 @@ import { MongoClient, ObjectId } from "mongodb";
 import DbAdapter from "./dbAdapter";
 import { Todo } from "./model/Todo";
 
-const MONGO_URI = process.env.MONGO_URI;
-const COLLECTION_NAME = "todos";
-
 export default class MongoAdapter implements DbAdapter {
   dbClient: MongoClient;
 
   initializeDB() {
-    this.dbClient = new MongoClient(MONGO_URI);
+    console.log("Initializing the database connection");
+
+    if (!process.env.MONGO_URI) {
+      throw new Error("MONGO_URI is not defined in the environment variables.");
+    }
+
+    this.dbClient = new MongoClient(process.env.MONGO_URI);
   }
 
   async getTodosCollection() {
     let database;
+
     if (!this.dbClient) {
-      this.initializeDB();
+      try {
+        this.initializeDB();
+      } catch (error) {
+        console.log(error);
+        process.exit(1);
+      }
     }
+
     try {
       await this.dbClient.connect();
+      console.log("Successfully connected to the database");
       database = this.dbClient.db();
     } catch (error) {
       console.log(error);
       throw new Error(error);
     }
 
-    return database ? database.collection(COLLECTION_NAME) : null;
+    return database.collection("todos");
   }
 
   async getAllTodos(): Promise<[]> {
@@ -35,12 +46,10 @@ export default class MongoAdapter implements DbAdapter {
     } catch (error) {
       console.log(error);
       throw new Error(error);
-    } finally {
-      this.dbClient.close();
     }
   }
 
-  async createOneTodo(todo: Omit<Todo, '_id'>): Promise<string> {
+  async createOneTodo(todo: Omit<Todo, "_id">): Promise<string> {
     try {
       const collection = await this.getTodosCollection();
       const result = await collection.insertOne(todo);
@@ -52,7 +61,10 @@ export default class MongoAdapter implements DbAdapter {
     }
   }
 
-  async updateOneTodo(id: string, updatedTodo: Omit<Todo, '_id'>): Promise<object> {
+  async updateOneTodo(
+    id: string,
+    updatedTodo: Omit<Todo, "_id">
+  ): Promise<object> {
     try {
       const collection = await this.getTodosCollection();
       const result = await collection.findOneAndUpdate(
