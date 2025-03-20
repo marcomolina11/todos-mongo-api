@@ -1,18 +1,18 @@
-import { MongoClient, ObjectId } from "mongodb";
-import DbAdapter from "./dbAdapter";
-import { Todo } from "./model/Todo";
+import { MongoClient, ObjectId } from 'mongodb';
+import DbAdapter from './dbAdapter';
+import { Todo } from './model/Todo';
 
 export default class MongoAdapter implements DbAdapter {
   dbClient: MongoClient;
 
   initializeDB() {
-    console.log("Initializing the database connection");
-
-    if (!process.env.MONGO_URI) {
-      throw new Error("MONGO_URI is not defined in the environment variables.");
-    }
+    console.log('Initializing the database connection');
     const MONGO_URI =
-      process.env.MONGO_URI || "mongodb://database:27017/testDB";
+      process.env.MONGO_URI || 'mongodb://database:27017/testDB';
+
+    if (!MONGO_URI) {
+      throw new Error('MONGO_URI is not defined in the environment variables.');
+    }
     this.dbClient = new MongoClient(MONGO_URI);
   }
 
@@ -30,14 +30,14 @@ export default class MongoAdapter implements DbAdapter {
 
     try {
       await this.dbClient.connect();
-      console.log("Successfully connected to the database");
+      console.log('Successfully connected to the database');
       database = this.dbClient.db();
     } catch (error) {
       console.log(error);
       throw new Error(error);
     }
 
-    return database.collection("todos");
+    return database.collection('todos');
   }
 
   async getAllTodos(): Promise<[]> {
@@ -50,7 +50,7 @@ export default class MongoAdapter implements DbAdapter {
     }
   }
 
-  async createOneTodo(todo: Omit<Todo, "_id">): Promise<string> {
+  async createOneTodo(todo: Omit<Todo, '_id'>): Promise<string> {
     try {
       const collection = await this.getTodosCollection();
       const result = await collection.insertOne(todo);
@@ -64,14 +64,14 @@ export default class MongoAdapter implements DbAdapter {
 
   async updateOneTodo(
     id: string,
-    updatedTodo: Omit<Todo, "_id">
+    updatedTodo: Omit<Todo, '_id'>
   ): Promise<object> {
     try {
       const collection = await this.getTodosCollection();
       const result = await collection.findOneAndUpdate(
         { _id: ObjectId.createFromHexString(id) },
         { $set: updatedTodo },
-        { returnDocument: "after" }
+        { returnDocument: 'after' }
       );
       return { ...result, _id: result._id.toHexString() };
     } catch (error) {
