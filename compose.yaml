@@ -12,7 +12,7 @@ services:
     build:
       context: .
     environment:
-      NODE_ENV: development
+      NODE_ENV: ${NODE_ENV}
       PORT: ${PORT}
       MONGO_URI: ${MONGO_URI}
     depends_on:
