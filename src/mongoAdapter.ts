@@ -1,43 +1,56 @@
-import { MongoClient, ObjectId } from 'mongodb';
+import { Collection, Db, MongoClient, ObjectId } from 'mongodb';
 import DbAdapter from './dbAdapter';
 import { Todo } from './model/Todo';
 
 export default class MongoAdapter implements DbAdapter {
   dbClient: MongoClient;
 
-  initializeDB() {
+  async connectWithRetry(retries = 5, delay = 3000): Promise<MongoClient> {
     console.log('Initializing the database connection');
     const MONGO_URI =
       process.env.MONGO_URI || 'mongodb://database:27017/testDB';
 
     if (!MONGO_URI) {
-      throw new Error('MONGO_URI is not defined in the environment variables.');
+      console.error('MONGO_URI is not defined in the environment variables.');
+      process.exit(1);
     }
-    this.dbClient = new MongoClient(MONGO_URI);
-  }
 
-  async getTodosCollection() {
-    let database;
-
-    if (!this.dbClient) {
+    for (let i = 0; i < retries; i++) {
       try {
-        this.initializeDB();
-      } catch (error) {
-        console.log(error);
-        process.exit(1);
+        const client = new MongoClient(MONGO_URI);
+        await client.connect();
+        console.log('✅ Connected to MongoDB');
+        return client;
+      } catch (err) {
+        console.error(`❌ Attempt ${i + 1} failed: ${err.message}`);
+        if (i < retries - 1) {
+          await new Promise((res) => setTimeout(res, delay));
+          console.log('🔄 Retrying...');
+        } else {
+          console.error('❌ All attempts to connect to MongoDB failed.');
+          process.exit(1);
+        }
       }
     }
+  }
 
-    try {
-      await this.dbClient.connect();
-      console.log('Successfully connected to the database');
-      database = this.dbClient.db();
-    } catch (error) {
-      console.log(error);
-      throw new Error(error);
+  async getDB(): Promise<Db> {
+    if (this.dbClient) return this.dbClient.db();
+
+    this.dbClient = await this.connectWithRetry();
+
+    const db = this.dbClient.db();
+
+    if (!db || typeof db.collection !== 'function') {
+      console.error('❌ Invalid DB reference');
+      process.exit(1);
     }
+    return db;
+  }
 
-    return database.collection('todos');
+  async getTodosCollection(): Promise<Collection> {
+    const db = await this.getDB();
+    return db.collection('todos');
   }
 
   async getAllTodos(): Promise<[]> {
@@ -45,7 +58,7 @@ export default class MongoAdapter implements DbAdapter {
       const collection = await this.getTodosCollection();
       return (await collection.find({}).toArray()) as [];
     } catch (error) {
-      console.log(error);
+      console.error(error);
       throw new Error(error);
     }
   }
@@ -57,8 +70,6 @@ export default class MongoAdapter implements DbAdapter {
       return String(result.insertedId);
     } catch (error) {
       return error;
-    } finally {
-      this.dbClient.close();
     }
   }
 
@@ -76,12 +87,10 @@ export default class MongoAdapter implements DbAdapter {
       return { ...result, _id: result._id.toHexString() };
     } catch (error) {
       throw new Error(error);
-    } finally {
-      this.dbClient.close();
     }
   }
 
-  async deleteOneTodo(id: string) {
+  async deleteOneTodo(id: string): Promise<void> {
     try {
       const collection = await this.getTodosCollection();
       const result = await collection.deleteOne({
@@ -93,8 +102,10 @@ export default class MongoAdapter implements DbAdapter {
       return;
     } catch (error) {
       throw new Error(error);
-    } finally {
-      this.dbClient.close();
     }
+  }
+
+  async closeDB(): Promise<void> {
+    return this.dbClient?.close();
   }
 }
