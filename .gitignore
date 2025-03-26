@@ -127,3 +127,17 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Elastic Beanstalk Files
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+
+# Ignore local EB settings (specific to developer machine)
+.elasticbeanstalk/*.cfg.yml
+
+# Ignore Terraform state (if using)
+.elasticbeanstalk/terraform.tfstate
+
+# Ignore logs
+.elasticbeanstalk/logs/
+debug.log
