@@ -1,2 +1,30 @@
+# Exclude Docker Compose files used for local development and CI/CD testing
+
 compose.yaml
 compose.test.yaml
+
+# Exclude version control directories and files
+
+.git/
+.gitignore
+
+# Exclude local environment configuration files (if not needed in production)
+
+.env
+\*.env
+
+# Exclude log files and local build artifacts
+
+\*.log
+node_modules/
+dist/
+
+# Exclude CI/CD configuration directories and files
+
+.github/
+
+# Exclude tests and documentation not needed in production
+
+tests/
+coverage/
+docs/
